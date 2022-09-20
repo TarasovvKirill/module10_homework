@@ -1,0 +1,65 @@
+<!-- 10.5. Задание 2.
+Сверстайте кнопку, клик на которую будет выводить данные о размерах экрана с помощью alert. 
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10.5. Задание 2</title>
+  <style>
+
+    .btn {
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    margin: 5px 10px;
+    padding: 10px 15px;
+    border-radius: 1px;
+    font-size: 12px;
+    line-height: 15px;
+    text-transform: uppercase;
+    color: white;
+    background: #315efb;
+    transition: 0.3s;
+  }
+
+  .btn:hover {
+    box-shadow: 0px 2px 8px 2px rgba(141, 150, 178, 0.3);
+    transform: scale(1.05);
+  }
+
+  .btn_text {
+    margin: 0 auto;
+  }
+
+  </style>
+</head>
+
+<body>
+
+  <p> Чтобы узнать размер экрана, нажмите на кнопку</p>
+  <button class="btn">
+    <div class="btn_text">Кнопка</div>
+  </button>
+  
+  <script>
+    const btn = document.querySelector(".btn");
+    const data = document.querySelector(".data");
+
+    btn.addEventListener("click", () => {
+      window.alert(
+        `Высота: ${window.screen.height} px Ширина: ${window.screen.width} px`);
+    });
+  </script>
+
+</body>
+</html>

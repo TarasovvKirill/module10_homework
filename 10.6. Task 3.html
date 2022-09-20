@@ -1,0 +1,155 @@
+<!-- 10.6. Задание 3.
+
+1. Реализовать чат на основе эхо-сервера wss://echo-ws-service.herokuapp.com.
+Интерфейс состоит из input, куда вводится текст сообщения, и кнопки «Отправить».
+При клике на кнопку «Отправить» сообщение должно появляться в окне переписки.
+Эхо-сервер будет отвечать вам тем же сообщением, его также необходимо выводить в чат:
+
+2. Добавить в чат механизм отправки гео-локации:
+  При клике на кнопку «Гео-локация» необходимо отправить данные серверу и 
+  в чат вывести ссылку на https://www.openstreetmap.org/ с вашей гео-локацией. 
+  Сообщение, которое отправит обратно эхо-сервер, не выводить. -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10.5. Задание 2</title>
+
+  <style>
+
+    p {
+      margin: 10px;
+    }
+    .main {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto;
+      border: 1px solid rgb(231, 236, 238);
+      flex-direction: column;
+      height: 30em;
+      box-shadow: 5px 5px 10px 5px rgba(0, 0, 0, 0.5);
+    }
+    .form {
+      width: 100%;
+      display: flex;
+      height: 8%;
+      padding: 10px 10px;
+    }
+    input {
+      width: 47%;
+      border: 4px solid rgb(174, 205, 231);
+    }
+    .btn {
+      width: 22%;
+      display: inline-block;
+      background: rgb(174, 205, 231);
+      margin-left: 5px;
+      border: none;
+    }
+    .communication-window {
+      border: 4px solid rgb(174, 205, 231);
+      height: 90%;
+      margin: 0px 10px 10px 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .message-window,
+    #map-link {
+      max-width: 50%;
+      max-height: 50%;
+      padding: 10px;
+      border-radius: 7px;
+      border: 4px solid rgb(168, 203, 235);
+      display: flex;
+      justify-content: space-around;
+    }
+    #map-link {
+      margin: 10px;
+      align-self: flex-end;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="main">
+    <div class="form">
+      <input type="text" name="text" class="message" placeholder="Здесь вводится текст сообщения">
+      <button class="btn btn-send">Отправить</button>
+      <button class="btn btn-geo">Гео-локация</button>
+    </div>
+    <div class="communication-window"></div>
+  </div>
+  
+  <script>
+    const wsurl = "wss://echo-ws-service.herokuapp.com";
+    const messageInput = document.querySelector(".message");
+    const btnSend = document.querySelector(".btn-send");
+    const btnGeo = document.querySelector(".btn-geo");
+    const communicationWindow = document.querySelector(".communication-window");
+
+    let websocket = new WebSocket(wsurl);
+
+    function writeToScreen(message, position = "flex-end") {
+      let element = `<p class="message-window" style="align-self: ${position}">${message}</p>`;
+      communicationWindow.innerHTML += element;
+    }
+
+    websocket.onopen = function (evt) {
+      console.log("CONNECTED");
+    };
+    websocket.onerror = function (evt) {
+      console.log("DISCONNECTED");
+    };
+    websocket.onmessage = function (evt) {
+      if (!evt.data.includes("http")) {
+        writeToScreen(evt.data, "flex-start");
+      } else {
+        console.log("Answer from server");
+      }
+    };
+    websocket.onerror = function (evt) {
+      console.log("ERROR" + evt.data);
+    };
+
+    btnSend.addEventListener("click", () => {
+      let message = messageInput.value;
+      writeToScreen(message);
+      websocket.send(message);
+      messageInput.value = "";
+    });
+
+    const error = () => {
+      let error = "Невозможно получить ваше местоположение";
+      writeToScreen(error);
+    };
+
+    const success = (position) => {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      let link = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
+      let linkElement = `<a id = "map-link" href = ${link} target="_blank">Гео-локация</a>`;
+      communicationWindow.innerHTML += linkElement;
+      websocket.send(link);
+    };
+
+    btnGeo.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        console.log("Geolocation не поддерживается вашим браузером");
+      } else {
+        navigator.geolocation.getCurrentPosition(success, error);
+      }
+    });
+
+  </script>
+
+</body>
+</html>
